@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#172029">
+    <meta name="description" content="Mobile-first HTML5 clicker prototype for CrazyGames.">
+    <title>Tap Factory Tycoon</title>
+    <link rel="stylesheet" href="src/styles.css">
+    <script defer src="https://sdk.crazygames.com/crazygames-sdk-v2.js"></script>
+    <script defer src="src/app.js"></script>
+  </head>
+  <body>
+    <noscript>This game needs JavaScript enabled.</noscript>
+
+    <main class="game-ui" id="gameRoot">
+      <header class="top-bar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-copy">
+            <strong data-i18n="gameTitle">Tap Factory Tycoon</strong>
+            <small id="tierLabel">Starter Line</small>
+          </span>
+        </div>
+
+        <div class="top-actions">
+          <span class="sdk-pill" id="sdkPill">SDK</span>
+          <button class="small-button" id="languageButton" type="button" aria-label="Switch language">EN</button>
+          <button class="small-button danger" id="resetButton" type="button" data-i18n="reset">Reset</button>
+        </div>
+      </header>
+
+      <section class="stats-grid" aria-label="Factory stats">
+        <article class="stat">
+          <span data-i18n="money">Money</span>
+          <strong id="moneyValue">$0</strong>
+        </article>
+        <article class="stat">
+          <span data-i18n="stock">Stock</span>
+          <strong id="stockValue">0/60</strong>
+        </article>
+        <article class="stat">
+          <span data-i18n="flow">Flow</span>
+          <strong id="flowValue">0/s</strong>
+        </article>
+        <article class="stat accent">
+          <span data-i18n="weeklyRating">Weekly Rating</span>
+          <strong id="scoreValue">0</strong>
+        </article>
+      </section>
+
+      <section class="main-layout">
+        <section class="factory-stage" aria-label="Factory floor">
+          <div class="workshop">
+            <div class="factory-backdrop" aria-hidden="true">
+              <div class="shelf shelf-a"></div>
+              <div class="shelf shelf-b"></div>
+              <div class="belt"></div>
+              <div class="belt-lines"></div>
+              <div class="machine">
+                <div class="machine-top"></div>
+                <div class="machine-window" id="machineWindow"></div>
+                <div class="machine-arm"></div>
+                <div class="machine-base"></div>
+              </div>
+              <div class="crate-stack" id="crateStack">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="truck">
+                <div class="truck-box"></div>
+                <div class="truck-cab"></div>
+                <div class="truck-wheel wheel-left"></div>
+                <div class="truck-wheel wheel-right"></div>
+              </div>
+            </div>
+
+            <button class="tap-button" id="tapButton" type="button">
+              <span data-i18n="tap">TAP</span>
+              <small id="tapPowerLabel">+1</small>
+            </button>
+
+            <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
+          </div>
+
+          <article class="active-contract" id="activeContract">
+            <span class="contract-kicker" data-i18n="currentContract">Current Contract</span>
+            <strong id="activeContractTitle">Ship 30 crates</strong>
+            <div class="progress-track">
+              <span id="activeContractProgress"></span>
+            </div>
+          </article>
+        </section>
+
+        <section class="control-panel">
+          <nav class="tabs" aria-label="Game sections">
+            <button class="tab-button active" type="button" data-tab="upgrades" data-i18n="upgrades">Upgrades</button>
+            <button class="tab-button" type="button" data-tab="managers" data-i18n="managers">Managers</button>
+            <button class="tab-button" type="button" data-tab="contracts" data-i18n="contracts">Contracts</button>
+            <button class="tab-button" type="button" data-tab="rank" data-i18n="rank">Rank</button>
+          </nav>
+
+          <section class="tab-panel active" id="tab-upgrades">
+            <div class="section-head">
+              <h2 data-i18n="upgradeLine">Upgrade Line</h2>
+              <span id="upgradeHint"></span>
+            </div>
+            <div class="item-list" id="upgradeList"></div>
+          </section>
+
+          <section class="tab-panel" id="tab-managers">
+            <div class="section-head">
+              <h2 data-i18n="hireManagers">Hire Managers</h2>
+              <span id="managerHint"></span>
+            </div>
+            <div class="item-list" id="managerList"></div>
+          </section>
+
+          <section class="tab-panel" id="tab-contracts">
+            <div class="section-head">
+              <h2 data-i18n="weeklyContracts">Weekly Contracts</h2>
+              <span id="contractHint"></span>
+            </div>
+            <div class="item-list" id="contractList"></div>
+          </section>
+
+          <section class="tab-panel" id="tab-rank">
+            <div class="section-head">
+              <h2 data-i18n="leaderboard">Leaderboard</h2>
+              <span id="leaderboardHint"></span>
+            </div>
+            <div class="rank-board">
+              <div class="rank-row">
+                <span data-i18n="localBest">Local Best</span>
+                <strong id="bestScoreValue">0</strong>
+              </div>
+              <div class="rank-row">
+                <span data-i18n="submittedBest">Submitted Best</span>
+                <strong id="submittedScoreValue">0</strong>
+              </div>
+              <div class="rank-row">
+                <span data-i18n="platform">Platform</span>
+                <strong id="platformValue">disabled</strong>
+              </div>
+            </div>
+            <button class="wide-button primary" id="submitScoreButton" type="button" data-i18n="submitScore">Submit Score</button>
+            <button class="wide-button" id="branchButton" type="button" data-i18n="openBranch">Open Branch</button>
+            <p class="status-line" id="leaderboardStatus"></p>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
