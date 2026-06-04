@@ -207,6 +207,7 @@
     contractHint: document.getElementById("contractHint"),
     leaderboardHint: document.getElementById("leaderboardHint"),
     machine: document.querySelector(".machine"),
+    workshop: document.querySelector(".workshop"),
     crateStack: document.getElementById("crateStack"),
     toast: document.getElementById("toast"),
   };
@@ -373,10 +374,14 @@
     }
 
     els.tapButton.classList.add("pressed");
+    els.workshop.classList.add("punching");
     els.machine.classList.remove("punch");
     void els.machine.offsetWidth;
     els.machine.classList.add("punch");
-    window.setTimeout(() => els.tapButton.classList.remove("pressed"), 90);
+    window.setTimeout(() => {
+      els.tapButton.classList.remove("pressed");
+      els.workshop.classList.remove("punching");
+    }, 120);
     spawnFx(event.clientX, event.clientY, earned > 0 ? `+$${formatCompact(earned)}` : `+${Math.floor(crates)}`);
     renderAll();
   }

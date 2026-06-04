@@ -261,9 +261,9 @@ button:focus-visible {
   overflow: hidden;
   border: 5px solid var(--line);
   background:
-    linear-gradient(180deg, var(--sky) 0 40%, var(--sky-deep) 40% 43%, var(--grass) 43% 61%, var(--road) 61% 100%);
+    radial-gradient(circle at 50% 18%, rgba(255, 242, 200, 0.18), transparent 30%),
+    linear-gradient(180deg, #405178, #53617f 54%, #34394e);
   box-shadow: 0 6px 0 var(--line), 0 14px 0 rgba(20, 13, 18, 0.32);
-  image-rendering: pixelated;
 }
 
 .workshop::before {
@@ -298,7 +298,93 @@ button:focus-visible {
   inset: 0;
 }
 
+.scene-art,
+.machine-art,
+.crate-art,
+.coin-art {
+  position: absolute;
+  display: block;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.scene-art {
+  left: 50%;
+  top: 47%;
+  z-index: 1;
+  width: min(94%, 430px);
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(20, 13, 18, 0.28);
+  transform: translate(-50%, -50%);
+}
+
+.machine-art,
+.crate-art,
+.coin-art {
+  display: none;
+}
+
+.machine-art {
+  left: 50%;
+  top: 39%;
+  z-index: 5;
+  width: min(42vw, 176px);
+  height: auto;
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 10px 12px rgba(20, 13, 18, 0.28));
+}
+
+.machine-art-press {
+  opacity: 0;
+}
+
+.workshop.punching .machine-art-idle {
+  opacity: 0;
+}
+
+.workshop.punching .machine-art-press {
+  opacity: 1;
+}
+
+.crate-art {
+  z-index: 6;
+  width: min(18vw, 74px);
+  height: auto;
+  filter: drop-shadow(0 7px 7px rgba(20, 13, 18, 0.24));
+}
+
+.crate-art-a {
+  left: 18%;
+  top: 52%;
+}
+
+.crate-art-b {
+  right: 17%;
+  top: 51%;
+  opacity: 0;
+  transform: scale(0.88);
+}
+
+.crate-stack.full ~ .crate-art-b,
+.workshop:has(.crate-stack.full) .crate-art-b {
+  opacity: 1;
+}
+
+.coin-art {
+  right: 9%;
+  top: 30%;
+  z-index: 6;
+  width: min(18vw, 76px);
+  opacity: 0.94;
+  transform: rotate(4deg);
+  filter: drop-shadow(0 8px 10px rgba(20, 13, 18, 0.25));
+}
+
 .shelf {
+  display: none;
   position: absolute;
   left: 8%;
   top: 16%;
@@ -333,6 +419,7 @@ button:focus-visible {
 
 .belt,
 .belt-lines {
+  display: none;
   position: absolute;
   left: 6%;
   right: 6%;
@@ -375,6 +462,7 @@ button:focus-visible {
 }
 
 .machine {
+  display: none;
   position: absolute;
   left: 50%;
   top: 42%;
@@ -487,6 +575,7 @@ button:focus-visible {
 }
 
 .crate-stack {
+  display: none;
   position: absolute;
   right: 9%;
   bottom: 38%;
@@ -513,6 +602,7 @@ button:focus-visible {
 }
 
 .truck {
+  display: none;
   position: absolute;
   left: 7%;
   bottom: 10%;
@@ -576,8 +666,10 @@ button:focus-visible {
   padding: 11px;
   border: 5px solid var(--line);
   background:
+    url("../assets/cartoon/tap-button-art.png") center / 100% 100% no-repeat,
     linear-gradient(180deg, rgba(255,255,255,0.22) 0 18%, transparent 18%),
     linear-gradient(180deg, var(--yellow), #f39931);
+  border-color: transparent;
   box-shadow: 0 7px 0 var(--line), 0 15px 0 rgba(20, 13, 18, 0.3);
   color: var(--line);
   cursor: pointer;
@@ -613,6 +705,7 @@ button:focus-visible {
 }
 
 .tap-button span {
+  color: transparent;
   font-size: clamp(1.55rem, 8vw, 2.35rem);
   line-height: 1;
 }
@@ -834,6 +927,7 @@ button:focus-visible {
 .wide-button {
   border: 4px solid var(--line);
   background:
+    url("../assets/cartoon/buy-button-art.png") center / 100% 100% no-repeat,
     linear-gradient(180deg, rgba(255,255,255,0.18) 0 18%, transparent 18%),
     var(--green);
   box-shadow: 0 4px 0 var(--line);
@@ -911,6 +1005,7 @@ button:focus-visible {
 
 .wide-button.primary {
   background:
+    url("../assets/cartoon/leaderboard-button-art.png") center / 100% 100% no-repeat,
     linear-gradient(180deg, rgba(255,255,255,0.18) 0 18%, transparent 18%),
     var(--blue);
 }
