@@ -7,6 +7,7 @@
     <meta name="description" content="Mobile-first HTML5 clicker prototype for CrazyGames.">
     <title>Tap Factory Tycoon</title>
     <link rel="stylesheet" href="src/styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
     <script defer src="https://sdk.crazygames.com/crazygames-sdk-v2.js"></script>
     <script defer src="src/app.js"></script>
   </head>
@@ -52,6 +53,7 @@
       <section class="main-layout">
         <section class="factory-stage" aria-label="Factory floor">
           <div class="workshop">
+            <div class="phaser-stage" id="phaserStage" aria-hidden="true"></div>
             <div class="factory-backdrop" aria-hidden="true">
               <img class="scene-art" src="assets/cartoon/factory-scene.png" alt="">
               <div class="shelf shelf-a"></div>

@@ -217,6 +217,7 @@
   let lastFrame = performance.now();
   let lastSave = performance.now();
   let toastTimer = 0;
+  let phaserBridge = null;
 
   const cg = {
     env: "disabled",
@@ -294,6 +295,7 @@
     normalizeState();
     applyOfflineProgress();
     bindEvents();
+    initPhaserStage();
     setLanguage(state.lang || "en", false);
     ensureContracts();
     renderAll();
@@ -384,6 +386,7 @@
     }, 120);
     spawnFx(event.clientX, event.clientY, earned > 0 ? `+$${formatCompact(earned)}` : `+${Math.floor(crates)}`);
     renderAll();
+    syncPhaserState();
   }
 
   function addStock(amount) {
@@ -419,6 +422,7 @@
     updateBestScore();
     renderAll();
     saveState();
+    syncPhaserState();
   }
 
   function hireManager(id) {
@@ -434,6 +438,7 @@
     updateBestScore();
     renderAll();
     saveState();
+    syncPhaserState();
   }
 
   function openBranch() {
@@ -456,6 +461,7 @@
     showToast(t("branchOpened"));
     renderAll();
     saveState();
+    syncPhaserState();
   }
 
   async function submitCurrentScore() {
@@ -582,6 +588,183 @@
     els.tapPowerLabel.textContent = `+${formatCompact(tapPower())}`;
     els.tierLabel.textContent = tierLabel();
     els.crateStack.classList.toggle("full", state.stock / cap > 0.65);
+    syncPhaserState();
+  }
+
+  function initPhaserStage() {
+    const mount = document.getElementById("phaserStage");
+    if (!mount || !window.Phaser) {
+      document.documentElement.classList.add("no-phaser");
+      return;
+    }
+
+    const Phaser = window.Phaser;
+    const tapFromCanvas = (pointer) => {
+      const rect = mount.getBoundingClientRect();
+      const clientX = rect.left + pointer.x;
+      const clientY = rect.top + pointer.y;
+      handleTap({ clientX, clientY });
+    };
+
+    class FactoryScene extends Phaser.Scene {
+      constructor() {
+        super("FactoryScene");
+        this.sceneArt = null;
+        this.tapArt = null;
+        this.machinePulse = null;
+        this.beltDots = [];
+        this.hudText = null;
+      }
+
+      preload() {
+        this.load.image("factoryScene", "assets/cartoon/factory-scene.png");
+        this.load.image("tapButtonArt", "assets/cartoon/tap-button-art.png");
+        this.load.image("coinsArt", "assets/cartoon/coins.png");
+      }
+
+      create() {
+        this.cameras.main.setBackgroundColor("#3d4969");
+        this.sceneArt = this.add.image(195, 272, "factoryScene");
+        this.sceneArt.setDisplaySize(390, 540);
+        this.sceneArt.setOrigin(0.5);
+
+        this.machinePulse = this.add.graphics();
+        this.drawMachinePulse(0.12);
+
+        for (let index = 0; index < 8; index += 1) {
+          const dot = this.add.circle(52 + index * 38, 421, 4, 0xfff0b0, 0.58);
+          this.beltDots.push(dot);
+        }
+
+        this.tapArt = this.add.image(195, 470, "tapButtonArt");
+        this.tapArt.setDisplaySize(154, 72);
+        this.tapArt.setInteractive({ useHandCursor: true });
+        this.tapArt.on("pointerdown", (pointer) => {
+          this.pressTapArt();
+          tapFromCanvas(pointer);
+        });
+
+        this.hudText = this.add.text(195, 526, "", {
+          align: "center",
+          color: "#fff6d7",
+          fontFamily: "Trebuchet MS, Arial, sans-serif",
+          fontSize: "14px",
+          fontStyle: "bold",
+          stroke: "#2a1830",
+          strokeThickness: 4,
+        });
+        this.hudText.setOrigin(0.5);
+
+        this.input.on("pointerdown", (pointer) => {
+          const distance = Phaser.Math.Distance.Between(pointer.x, pointer.y, 195, 320);
+          if (distance < 115 && pointer.y < 430) {
+            this.pressMachine();
+            tapFromCanvas(pointer);
+          }
+        });
+
+        phaserBridge = this;
+        this.sync(state);
+      }
+
+      update(time) {
+        this.beltDots.forEach((dot, index) => {
+          dot.x = 44 + ((time / 8 + index * 38) % 304);
+          dot.alpha = 0.35 + Math.sin(time / 180 + index) * 0.18;
+        });
+      }
+
+      sync(gameState) {
+        if (!this.hudText) return;
+        const cap = capacity();
+        const stockRatio = Math.min(1, gameState.stock / cap);
+        this.hudText.setText(`${Math.round(stockRatio * 100)}% stock  |  ${formatCompact(gameState.score)} rating`);
+        this.drawMachinePulse(0.08 + stockRatio * 0.22);
+      }
+
+      drawMachinePulse(alpha) {
+        if (!this.machinePulse) return;
+        this.machinePulse.clear();
+        this.machinePulse.fillStyle(0xffd35a, alpha);
+        this.machinePulse.fillEllipse(196, 326, 190, 96);
+        this.machinePulse.lineStyle(4, 0xfff2b8, alpha * 0.9);
+        this.machinePulse.strokeEllipse(196, 326, 190, 96);
+      }
+
+      pressMachine() {
+        if (!this.sceneArt) return;
+        this.sceneArt.setScale(1.012, 0.992);
+        this.tweens.add({
+          targets: this.sceneArt,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 130,
+          ease: "Back.Out",
+        });
+        this.spawnCoins(195, 320);
+      }
+
+      pressTapArt() {
+        if (!this.tapArt) return;
+        this.tweens.killTweensOf(this.tapArt);
+        this.tapArt.setScale(0.94);
+        this.tweens.add({
+          targets: this.tapArt,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 130,
+          ease: "Back.Out",
+        });
+        this.spawnCoins(195, 444);
+      }
+
+      spawnCoins(x, y) {
+        for (let index = 0; index < 5; index += 1) {
+          const coin = this.add.circle(x, y, Phaser.Math.Between(5, 8), 0xffd35a, 1);
+          coin.setStrokeStyle(2, 0x8f5526);
+          this.tweens.add({
+            targets: coin,
+            x: x + Phaser.Math.Between(-76, 76),
+            y: y + Phaser.Math.Between(-98, -42),
+            alpha: 0,
+            scale: 0.35,
+            duration: Phaser.Math.Between(520, 780),
+            ease: "Cubic.Out",
+            onComplete: () => coin.destroy(),
+          });
+        }
+      }
+    }
+
+    try {
+      const game = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: mount,
+        width: 390,
+        height: 560,
+        backgroundColor: "#3d4969",
+        transparent: false,
+        scale: {
+          mode: Phaser.Scale.FIT,
+          autoCenter: Phaser.Scale.CENTER_BOTH,
+        },
+        render: {
+          antialias: true,
+          pixelArt: false,
+        },
+        scene: FactoryScene,
+      });
+      mount.__tapFactoryGame = game;
+      document.documentElement.classList.add("has-phaser");
+    } catch (_error) {
+      document.documentElement.classList.add("no-phaser");
+    }
+  }
+
+  function syncPhaserState() {
+    if (phaserBridge && typeof phaserBridge.sync === "function") {
+      phaserBridge.sync(state);
+    }
   }
 
   function renderUpgrades() {

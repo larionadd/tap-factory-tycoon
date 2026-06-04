@@ -164,7 +164,7 @@ button:focus-visible {
 }
 
 .sdk-pill {
-  display: inline-grid;
+  display: none;
   place-items: center;
   color: #c9b99e;
 }
@@ -184,6 +184,7 @@ button:focus-visible {
 }
 
 .small-button.danger {
+  display: none;
   background: var(--red);
   color: #fff5dc;
 }
@@ -264,6 +265,30 @@ button:focus-visible {
     radial-gradient(circle at 50% 18%, rgba(255, 242, 200, 0.18), transparent 30%),
     linear-gradient(180deg, #405178, #53617f 54%, #34394e);
   box-shadow: 0 6px 0 var(--line), 0 14px 0 rgba(20, 13, 18, 0.32);
+}
+
+.phaser-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: none;
+  overflow: hidden;
+  background: #3d4969;
+}
+
+.phaser-stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.has-phaser .phaser-stage {
+  display: block;
+}
+
+.has-phaser .factory-backdrop,
+.has-phaser .tap-button {
+  display: none;
 }
 
 .workshop::before {
